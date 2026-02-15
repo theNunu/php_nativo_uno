@@ -1,44 +1,33 @@
 <?php
 
-header("Content-Type: application/json");
 
-require_once "src/config/database.php";
-require_once "src/controllers/UserController.php";
+require_once __DIR__ . "/src/config/database.php";
+require_once __DIR__ . "/src/controllers/UserController.php";
 
 $database = new Database();
 $db = $database->connect();
-
 $controller = new UserController($db);
 
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
-$data = json_decode(file_get_contents("php://input"), true);
 
-switch($method) {
+if ($uri === '/users' && $method === 'GET') {
 
-    case 'GET':
-        echo json_encode($controller->index());
-        break;
+    $users = $controller->index();
+    require __DIR__ . "/src/views/users/index.php";
 
-    case 'POST':
-        if ($controller->store($data)) {
-            echo json_encode(["message" => "Usuario creado"]);
-        }
-        break;
+} elseif ($uri === '/users/create' && $method === 'GET') {
 
-    case 'PUT':
-        $id = $_GET['id'];
-        if ($controller->update($id, $data)) {
-            echo json_encode(["message" => "Usuario actualizado"]);
-        }
-        break;
+    require __DIR__ . "/src/views/users/create.php";
 
-    case 'DELETE':
-        $id = $_GET['id'];
-        if ($controller->destroy($id)) {
-            echo json_encode(["message" => "Usuario eliminado"]);
-        }
-        break;
+} elseif ($uri === '/users/store' && $method === 'POST') {
 
-    default:
-        echo json_encode(["message" => "Método no permitido"]);
+    $controller->store($_POST);
+    header("Location: /users");
+    exit;
+
+} else {
+
+    echo "Ruta no encontrada";
+
 }

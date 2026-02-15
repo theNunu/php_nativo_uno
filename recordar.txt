@@ -1,0 +1,3 @@
+ejecutar ese puerto en index.php  para correr el servidor
+php -S localhost:8000        
+
