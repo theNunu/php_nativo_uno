@@ -3,6 +3,7 @@
 
 require_once __DIR__ . "/src/config/database.php";
 require_once __DIR__ . "/src/controllers/UserController.php";
+require_once __DIR__ . "/src/controllers/AuthController.php";
 
 $database = new Database();
 $db = $database->connect();
@@ -26,6 +27,14 @@ if ($uri === '/users' && $method === 'GET') {
     header("Location: /users");
     exit;
 
+} elseif ($uri === '/send-otp' && $method === 'POST') {
+
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    $auth = new AuthController();
+    $response = $auth->sendOtp($data['email']);
+
+    echo json_encode($response);
 } else {
 
     echo "Ruta no encontrada";
